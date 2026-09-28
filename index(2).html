@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WasteMatch — ค้นหาคู่ Prototype V8</title>
+<style>
+:root{
+  --bg:#f4f6f3;--card:#fff;--ink:#17201b;--muted:#737b76;--line:#e3e7e3;
+  --green:#087a4b;--green2:#e5f7ed;--lime:#b9ef63;--dark:#073b29;--deep:#045f3b;
+  --red:#ef4444;--shadow:0 18px 55px rgba(21,34,27,.12);
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#111}
+button,input{font:inherit}button{cursor:pointer}
+body{display:flex;justify-content:center}
+.app{width:min(100%,1180px);min-height:100vh;background:var(--bg);position:relative;overflow:hidden}
+.top{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;background:linear-gradient(90deg,#063d2a,#087a4b);backdrop-filter:blur(16px);position:sticky;top:0;z-index:20;border-bottom:1px solid #126b49;color:#fff}.top .brand span{color:#b9ef63}.top .iconbtn{background:#ffffff16;border-color:#ffffff30;color:#fff}
+.brand{font-weight:900;font-size:21px;letter-spacing:-.5px}.brand span{color:#b9ef63}
+.top-right{display:flex;gap:10px;align-items:center}
+.iconbtn{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:#fff;display:grid;place-items:center;font-size:19px}
+.demo{background:var(--dark);color:#fff;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:800}
+.screen{display:none;padding:26px 30px 120px}.screen.active{display:block}
+h1,h2,h3,p{margin-top:0}.eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:900;color:var(--green)}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:stretch;margin-bottom:24px}
+.hero-copy{background:linear-gradient(135deg,#063d2a 0%,#087a4b 62%,#13a66a 100%);color:#fff;border-radius:30px;padding:38px;min-height:330px;position:relative;overflow:hidden;box-shadow:0 22px 55px rgba(4,95,59,.22)}
+.hero-copy:after{content:"♻";position:absolute;font-size:280px;right:-30px;bottom:-105px;opacity:.09;color:#b9ef63}
+.hero h1{font-size:clamp(40px,6vw,70px);line-height:.96;letter-spacing:-3px;margin:18px 0}.hero p{color:#b9c3bd;max-width:540px;line-height:1.6}
+.hero-actions{display:flex;gap:10px;margin-top:25px;flex-wrap:wrap}
+.btn{border:0;border-radius:999px;padding:13px 18px;font-weight:850}.primary{background:var(--lime);color:#10251b;box-shadow:0 7px 18px rgba(185,239,99,.18)}.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.statbox{background:#fff;border:1px solid var(--line);border-radius:24px;padding:23px;box-shadow:0 8px 28px rgba(20,30,25,.04)}.statbox strong{display:block;font-size:34px;letter-spacing:-1.5px}.statbox span{color:var(--muted);font-size:13px}
+
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:28px 0 14px}.section-head h2{margin:0;font-size:22px;letter-spacing:-.7px}
+.small{font-size:13px;color:var(--muted)}
+.material-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.mat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px 10px;text-align:left;transition:.18s}.mat:hover,.mat.selected{border-color:#8bc9ae;transform:translateY(-2px);box-shadow:0 8px 22px rgba(20,80,55,.08)}.mat .emoji{font-size:25px;display:block;margin-bottom:8px}.mat b{font-size:12px}.mat small{display:block;color:var(--muted);margin-top:3px;font-size:10px}
+
+.pref-card{background:#fff;border:1px solid var(--line);border-radius:26px;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.pref-row{padding:16px 0;border-bottom:1px solid var(--line)}.pref-row:last-child{border-bottom:0}.pref-label{font-weight:800;margin-bottom:9px;display:flex;justify-content:space-between}.pref-label span{color:var(--muted);font-weight:600;font-size:13px}
+.range{width:100%;accent-color:var(--green)}.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{border:1px solid var(--line);background:#fafbfa;border-radius:999px;padding:8px 12px;font-size:12px}.chip.on{background:var(--green2);border-color:#9ed3bb;color:#155d43;font-weight:800}
+.toggle{width:48px;height:28px;border:0;border-radius:30px;background:#d9dedb;position:relative}.toggle:after{content:"";width:22px;height:22px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;box-shadow:0 1px 5px #9995;transition:.2s}.toggle.on{background:var(--green)}.toggle.on:after{left:23px}
+.field{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px}.field label{display:block;font-size:12px;font-weight:800;color:var(--muted);margin-bottom:9px}.field select,.field input[type=number]{width:100%;border:0;outline:0;background:#f6f8f6;padding:12px;border-radius:12px}
+.upload{border:1.5px dashed #aab6ae;border-radius:20px;padding:20px;text-align:center;background:#fafcfb}.upload input{display:none}.upload label{display:inline-block;background:var(--dark);color:#fff;border-radius:999px;padding:11px 15px;font-size:12px;font-weight:800}.preview{max-width:100%;max-height:210px;border-radius:16px;margin:12px auto 0;display:none;object-fit:cover}
+.discover-layout{display:grid;grid-template-columns:minmax(330px,520px) 1fr;gap:28px;align-items:start;justify-content:center}
+.swipe-wrap{position:relative;height:680px;max-width:520px;margin:auto;width:100%}
+.swipe-card{position:absolute;inset:0;background:#fff;border-radius:30px;overflow:hidden;box-shadow:var(--shadow);border:1px solid #e2e7e3;touch-action:none;user-select:none;transform-origin:50% 90%;transition:transform .25s,opacity .25s;will-change:transform,opacity}
+.swipe-card.stack-back{transform:scale(.94) translateY(18px);opacity:.62}
+.swipe-card.stack-far{transform:scale(.88) translateY(36px);opacity:.22}
+.photo{height:52%;position:relative;background:linear-gradient(135deg,#d9f0e3,#b8dcc8);overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover;display:block}.photo:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.7))}
+.photo-fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:105px;background:linear-gradient(135deg,#d9eee2,#b9d8c7)}
+.photo-top{position:absolute;z-index:2;top:17px;left:17px;right:17px;display:flex;justify-content:space-between;gap:8px}.photo-top .badge-pill{white-space:nowrap}.badge-pill{background:rgba(255,255,255,.92);border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900}.distance{background:rgba(17,21,19,.78);color:#fff}
+.card-info{padding:20px 22px}.name-row{display:flex;justify-content:space-between;gap:12px}.name{font-size:26px;font-weight:900;letter-spacing:-1px}.match{font-weight:900;color:var(--green);font-size:18px;background:#e7f7ee;padding:7px 9px;border-radius:12px}.sub{color:var(--muted);font-size:13px;margin:4px 0 15px}.reasons{display:flex;gap:7px;flex-wrap:wrap}.reason{background:var(--green2);color:#28674f;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:800}.need{margin-top:14px;font-size:12px;line-height:1.5}.need b{font-size:13px}.swipe-actions{display:flex;justify-content:center;gap:16px;margin-top:18px}.swipe-btn{width:62px;height:62px;border-radius:50%;border:1px solid var(--line);background:#fff;box-shadow:0 8px 22px rgba(20,30,25,.08);font-size:25px}.swipe-btn.pass{color:#ef4444}.swipe-btn.like{color:#087a4b;background:#e5f7ed;border-color:#a9ddc3}.swipe-btn.star{color:#8b6a00}
+.side-card{background:#fff;border:1px solid var(--line);border-radius:25px;padding:22px}.side-card h3{margin-bottom:5px}.side-card + .side-card{margin-top:14px}.factor{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}.factor:last-child{border:0}.factor b{color:var(--green)}
+.match-list{display:grid;gap:12px}.match-row{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;display:grid;grid-template-columns:70px 1fr auto;gap:14px;align-items:center}.thumb{width:70px;height:70px;border-radius:15px;background:#e2eee7;display:grid;place-items:center;font-size:32px}.score{color:var(--green);font-weight:900}.match-row button{background:var(--dark);color:#fff;border:0;border-radius:999px;padding:9px 13px;font-size:11px;font-weight:800}
+.exchange{max-width:820px;margin:auto}.exchange-hero{background:var(--dark);color:#fff;border-radius:28px;padding:30px;text-align:center}.exchange-hero .check{width:65px;height:65px;border-radius:50%;background:var(--lime);color:#17201b;display:grid;place-items:center;font-size:30px;margin:0 auto 12px}.exchange-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-top:18px}.person{background:#fff;color:var(--ink);border-radius:22px;padding:18px;text-align:left}.arrowbig{font-size:30px;color:var(--lime)}
+.impact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.impact-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}.impact-card strong{font-size:31px;display:block}.impact-card span{font-size:12px;color:var(--muted)}
+.bottom{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);width:min(calc(100% - 28px),720px);background:linear-gradient(90deg,#063d2a,#087a4b);border:1px solid #333a35;border-radius:25px;padding:8px;display:grid;grid-template-columns:repeat(5,1fr);z-index:50;box-shadow:0 15px 45px #0004;backdrop-filter:blur(15px)}.bottom button{border:0;background:transparent;color:#aeb7b1;border-radius:18px;padding:9px 4px;font-size:10px;font-weight:800}.bottom button.active{background:#fff;color:var(--ink)}.bottom .bi{display:block;font-size:18px;margin-bottom:3px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:100}.modal.show{display:flex}.sheet{background:#f6f7f5;width:min(100%,620px);border-radius:30px 30px 0 0;padding:25px;max-height:88vh;overflow:auto}.sheet-head{display:flex;justify-content:space-between;align-items:center}.close{border:0;background:#e8ece9;width:38px;height:38px;border-radius:50%}.toast{position:fixed;top:90px;left:50%;transform:translateX(-50%) translateY(-15px);background:#17201b;color:#fff;padding:12px 17px;border-radius:999px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;z-index:150}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:850px){.hero,.discover-layout,.pref-card{grid-template-columns:1fr}.material-grid{grid-template-columns:repeat(4,1fr)}.screen{padding:20px 18px 120px}.top{padding:0 18px}.hero-copy{min-height:300px}.side-card{display:none}}
+@media(max-width:560px){.demo{display:none}.top{height:68px}.brand{font-size:18px}.material-grid{grid-template-columns:repeat(3,1fr)}.swipe-wrap{height:600px}.photo{height:49%}.name{font-size:23px}.impact-grid{grid-template-columns:1fr 1fr}.exchange-grid{grid-template-columns:1fr}.arrowbig{transform:rotate(90deg);text-align:center}.bottom{bottom:9px}.hero-copy{padding:27px}.hero h1{font-size:45px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand">♻ <span>Waste</span>Match <small style="font-size:10px;font-weight:700;opacity:.72;margin-left:7px">เปลี่ยนขยะให้เป็นโอกาส</small></div>
+  <div class="top-right"><span class="demo">V9 • ต้นแบบใช้งานได้</span><button class="iconbtn" id="prefBtn">☷</button></div>
+</header>
+
+<main>
+<section id="home" class="screen active">
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow" style="color:#b8e9ce">Waste-to-Resource ค้นหาคู่</div>
+      <h1>ค้นหาคุณค่าใหม่<br>ให้วัสดุเหลือใช้ของคุณ</h1>
+      <p>ลงประกาศวัสดุเหลือใช้ ค้นหาผู้ที่ต้องการในบริเวณใกล้เคียง และปัดเลือกคู่ที่เหมาะที่สุด</p>
+      <div class="hero-actions"><button class="btn primary" id="discoverBtn">เริ่มค้นหาคู่ที่เหมาะ →</button><button class="btn ghost" id="postBtn">＋ ลงวัสดุ</button></div>
+    </div>
+    <div class="hero-stats">
+      <div class="statbox"><strong>96%</strong><span>คู่ที่เหมาะที่สุด</span></div>
+      <div class="statbox"><strong>12 km</strong><span>ผู้รับที่ใกล้ที่สุด</span></div>
+      <div class="statbox"><strong>12</strong><span>ประเภทวัสดุ</span></div>
+      <div class="statbox"><strong>24</strong><span>ประกาศที่กำลังใช้งาน</span></div>
+    </div>
+  </div>
+  <div class="section-head"><div><div class="eyebrow">เลือกวัสดุ</div><h2>คุณมีวัสดุอะไร?</h2></div><span class="small">เลือกวัสดุเพื่อเริ่มต้น</span></div>
+  <div class="material-grid" id="homeวัสดุs"></div>
+</section>
+
+<section id="post" class="screen">
+  <div class="section-head"><div><div class="eyebrow">สร้างประกาศ</div><h2>ลงประกาศวัสดุเหลือใช้</h2><div class="small">บอกเราเกี่ยวกับวัสดุที่คุณมี เพื่อค้นหาผู้รับที่เหมาะสม</div></div></div>
+  <div class="pref-card">
+    <div>
+      <div class="field"><label>วัสดุ</label><div class="chips" id="postวัสดุs"></div></div>
+      <br>
+      <div class="field"><label>ปริมาณ / สัปดาห์ (กก.)</label><input id="qty" type="number" min="1" value="30"></div><br>
+      <div class="field"><label>สถานที่</label><select id="location"><option>Maha Sarakham</option><option>Roi Et</option><option>Khon Kaen</option><option>Nakhon Ratchasima</option></select></div><br>
+      <div class="field"><label>ความถี่</label><select id="frequency"><option>ทุกสัปดาห์</option><option>ทุก 2 สัปดาห์</option><option>ครั้งเดียว</option></select></div>
+    </div>
+    <div>
+      <div class="upload"><input id="photoInput" type="file" accept="image/*"><label for="photoInput">＋ เพิ่มรูปวัสดุจริง</label><div class="small" style="margin-top:9px">รูปที่อัปโหลดจะแสดงบนการ์ดค้นหาคู่</div><img id="preview" class="preview"></div>
+      <div class="statbox" style="margin-top:14px"><div class="eyebrow">ตัวอย่างประกาศ</div><h3 id="listingName" style="margin:8px 0 4px">Coffee Grounds</h3><div class="small" id="listingMeta">30 kg/week • Maha Sarakham</div><button class="btn primary" style="margin-top:15px;width:100%" id="publishBtn">เผยแพร่และค้นหาคู่ →</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="discover" class="screen">
+  <div class="section-head"><div><div class="eyebrow">ค้นหาคู่</div><h2>ผู้ที่นำวัสดุของคุณไปใช้ต่อได้</h2><div class="small" id="discoverSummary">Coffee Grounds • Maha Sarakham</div></div><button class="btn ghost" id="filterBtn">⚙ ตัวกรอง</button></div>
+  <div class="discover-layout">
+    <div>
+      <div class="swipe-wrap" id="stack"></div>
+      <div class="swipe-actions"><div style="text-align:center"><button class="swipe-btn pass" id="passBtn">✕</button><div class="small" style="margin-top:5px">ไม่สนใจ</div></div><div style="text-align:center"><button class="swipe-btn star" id="starBtn">★</button><div class="small" style="margin-top:5px">บันทึก</div></div><div style="text-align:center"><button class="swipe-btn like" id="likeBtn">♥</button><div class="small" style="margin-top:5px">สนใจ</div></div></div>
+    </div>
+    <aside>
+      <div class="side-card"><div class="eyebrow">ความต้องการของคุณ</div><h3>ค้นหาคู่ settings</h3><p class="small">ปรับสิ่งที่คุณต้องการเห็นในรายการแนะนำ</p><button class="btn ghost" style="width:100%" id="openPref">แก้ไขความต้องการ</button></div>
+      <div class="side-card"><h3>ทำไมคู่นี้ถึงเหมาะ?</h3><div class="factor"><span>วัสดุ</span><b>40%</b></div><div class="factor"><span>ปริมาณ</span><b>25%</b></div><div class="factor"><span>ระยะทาง</span><b>20%</b></div><div class="factor"><span>ความถี่</span><b>15%</b></div></div>
+    </aside>
+  </div>
+</section>
+
+<section id="matches" class="screen">
+  <div class="section-head"><div><div class="eyebrow">กิจกรรมของคุณ</div><h2>คู่ที่สนใจ</h2><div class="small">Organizations you've shown interest in.</div></div></div>
+  <div class="match-list" id="matchList"></div>
+</section>
+
+<section id="postMatch" class="screen">
+  <div class="exchange">
+    <div class="exchange-hero"><div class="check">✓</div><div class="eyebrow" style="color:#b8e9ce">It's a Match</div><h1 style="margin:7px 0 5px">พร้อมเชื่อมต่อแล้ว</h1><p style="color:#b9c3bd;margin:0">คุณทั้งสองฝ่ายต้องการสิ่งเดียวกัน — เปลี่ยนวัสดุเหลือใช้ให้กลับมามีคุณค่า</p></div>
+    <div class="exchange-grid" id="exchangeGrid"></div>
+    <div class="statbox" style="margin-top:15px"><h3>ขั้นตอนต่อไป</h3><p class="small">พูดคุยเรื่องปริมาณ การรับ–ส่ง และช่วงเวลาที่สะดวก</p><button class="btn primary" style="width:100%" id="messageBtn">ส่งข้อความ →</button></div>
+  </div>
+</section>
+
+<section id="impact" class="screen">
+  <div class="section-head"><div><div class="eyebrow">ผลกระทบ</div><h2>คุณr circular impact</h2></div></div>
+  <div class="impact-grid">
+    <div class="impact-card"><strong id="kgผลกระทบ">30 kg</strong><span>วัสดุที่นำกลับมาใช้</span></div>
+    <div class="impact-card"><strong id="matchผลกระทบ">0</strong><span>คู่ที่สนใจ</span></div>
+    <div class="impact-card"><strong id="connectผลกระทบ">0</strong><span>การเชื่อมต่อ</span></div>
+    <div class="impact-card"><strong>12</strong><span>ประเภทวัสดุ</span></div>
+  </div>
+</section>
+</main>
+
+<nav class="bottom">
+  <button class="active" data-go="home"><span class="bi">⌂</span>หน้าหลัก</button>
+  <button data-go="discover"><span class="bi">🔥</span>ค้นหา</button>
+  <button data-go="post"><span class="bi">＋</span>ลงวัสดุ</button>
+  <button data-go="matches"><span class="bi">♡</span>แมตช์</button>
+  <button data-go="impact"><span class="bi">◉</span>ผลกระทบ</button>
+</nav>
+
+<div class="modal" id="prefModal">
+  <div class="sheet">
+    <div class="sheet-head"><div><div class="eyebrow">ค้นหาคู่ Preferences</div><h2 style="margin:5px 0">ปรับรายการแนะนำ</h2></div><button class="close" id="closePref">✕</button></div>
+    <div class="statbox" style="margin-top:15px"><b>คุณคิดว่าคำแนะนำที่ได้รับเป็นอย่างไร?</b><div class="chips" style="margin-top:12px"><button class="chip" onclick="toast('Thanks — feedback saved')">✕ ไม่ตรงความต้องการ</button><button class="chip on" onclick="toast('Thanks — feedback saved')">✓ มีประโยชน์</button></div></div>
+    <div class="pref-row"><div class="pref-label">ระยะทาง <span id="prefระยะทาง">Maha Sarakham</span></div><select id="prefLoc" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:12px"><option>Maha Sarakham</option><option>Roi Et</option><option>Khon Kaen</option><option>Nakhon Ratchasima</option></select></div>
+    <div class="pref-row"><div class="pref-label">ระยะทางสูงสุด <span id="distValue">50 km</span></div><input class="range" id="distRange" type="range" min="5" max="200" value="50"></div>
+    <div class="pref-row"><div class="pref-label">วัสดุที่สนใจ</div><div class="chips" id="prefวัสดุs"></div></div>
+    <div class="pref-row"><div class="pref-label">แสดงคู่ที่ไกลออกไป <button class="toggle on" id="farToggle"></button></div></div>
+    <button class="btn primary" style="width:100%;margin-top:16px" id="savePref">บันทึกการตั้งค่า</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+const materials=[
+ ['coffee','☕','Coffee Grounds','กากกาแฟ'],['textile','👕','Textile Scraps','เศษผ้า'],['agri','🌾','Agricultural Residue','เศษเกษตร'],
+ ['plastic','♻️','Plastic Waste','พลาสติก'],['glass','🫙','Glass','แก้ว'],['paper','📦','Paper & Cardboard','กระดาษ'],
+ ['wood','🪵','Wood','ไม้'],['food','🥬','Food Waste','เศษอาหาร'],['oil','🛢️','Used Cooking Oil','น้ำมันใช้แล้ว'],
+ ['fruit','🍊','Fruit Waste','เศษผลไม้'],['metal','🔩','Metal','โลหะ'],['fabric','🧵','Fabric Fiber','เส้นใยผ้า']
+];
+const receivers={
+ coffee:[['Green Mushroom Farm','🍄','20–30 kg/week','12 km',96,'Mushroom cultivation','วัสดุ ✓','ปริมาณ ✓','Nearby ✓'],['Eco Compost','🌱','10–50 kg/week','18 km',88,'Compost','วัสดุ ✓','ปริมาณ ✓','ความถี่ ✓'],['Bio Soil Lab','🧪','15–60 kg/week','27 km',82,'Soil improvement','วัสดุ ✓','ความถี่ ✓','Nearby ✓']],
+ textile:[['Upcycle Studio','🧵','10–40 kg/week','9 km',94,'Upcycling','วัสดุ ✓','ปริมาณ ✓','Nearby ✓'],['Craft Loop','👜','5–30 kg/week','17 km',87,'Handmade products','วัสดุ ✓','ความถี่ ✓','Nearby ✓']],
+ agri:[['Bio Fertilizer Lab','🌱','20–100 kg/week','21 km',91,'Bio-fertilizer','วัสดุ ✓','ปริมาณ ✓','ความถี่ ✓'],['Soil Cycle','🌾','10–80 kg/week','15 km',86,'Soil improvement','วัสดุ ✓','Nearby ✓','ความถี่ ✓']],
+ plastic:[['ReCycle Hub','♻️','20–200 kg/week','15 km',90,'Recycling','วัสดุ ✓','ปริมาณ ✓','Nearby ✓'],['Plastic Loop','🏭','10–100 kg/week','31 km',84,'Reprocessing','วัสดุ ✓','ความถี่ ✓','Nearby ✓']],
+ glass:[['Glass Reborn','🫙','10–100 kg/week','19 km',92,'Glass recycling','วัสดุ ✓','ปริมาณ ✓','Nearby ✓']],
+ paper:[['Paper Cycle','📦','20–150 kg/week','8 km',95,'Paper recycling','วัสดุ ✓','ปริมาณ ✓','Nearby ✓']],
+ wood:[['WoodWorks','🪵','10–80 kg/week','24 km',89,'Furniture & boards','วัสดุ ✓','ปริมาณ ✓','ความถี่ ✓']],
+ food:[['Compost Kitchen','🥬','10–70 kg/week','11 km',94,'Compost','วัสดุ ✓','ปริมาณ ✓','Nearby ✓']],
+ oil:[['BioFuel Collect','🛢️','10–100 kg/week','16 km',93,'Biofuel','วัสดุ ✓','ปริมาณ ✓','Nearby ✓']],
+ fruit:[['FruitCycle','🍊','10–60 kg/week','13 km',92,'Compost & bio-products','วัสดุ ✓','ความถี่ ✓','Nearby ✓']],
+ metal:[['Metal Recovery','🔩','20–300 kg/week','22 km',91,'วัสดุ recovery','วัสดุ ✓','ปริมาณ ✓','Nearby ✓']],
+ fabric:[['Fiber Lab','🧵','5–50 kg/week','14 km',90,'Fiber recovery','วัสดุ ✓','ความถี่ ✓','Nearby ✓']]
+};
+let selected='coffee', photoURL='', cards=[], current=0, liked=[], selectedผู้รับ=null;
+
+function $(id){return document.getElementById(id)}
+function matInfo(){return materials.find(x=>x[0]===selected)}
+function toast(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1800)}
+function go(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ $(id).classList.add('active');
+ document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.go===id));
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderวัสดุs(){
+ const make=(target,click)=>{
+  $(target).innerHTML=materials.map(m=>`<button class="mat ${m[0]===selected?'selected':''}" data-m="${m[0]}"><span class="emoji">${m[1]}</span><b>${m[2]}</b><small>${m[3]}</small></button>`).join('');
+  $(target).querySelectorAll('.mat').forEach(b=>b.onclick=()=>{selected=b.dataset.m;click();renderวัสดุs();updateListing()});
+ };
+ make('homeวัสดุs',()=>{go('post')});
+ make('postวัสดุs',()=>{});
+ $('prefวัสดุs').innerHTML=materials.slice(0,8).map(m=>`<button class="chip ${m[0]===selected?'on':''}" data-p="${m[0]}">${m[1]} ${m[2]}</button>`).join('');
+ $('prefวัสดุs').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{selected=b.dataset.p;renderวัสดุs()});
+}
+function updateListing(){
+ const m=matInfo();$('listingName').textContent=m[2];$('listingMeta').textContent=`${$('qty').value||1} กก./สัปดาห์ • ${$('location').value}`;
+ $('discoverSummary').textContent=`${m[2]} • ${$('location').value} • ค้นหาผู้รับใกล้คุณ`;
+ $('kgผลกระทบ').textContent=`${$('qty').value||1} kg`;
+}
+$('qty').oninput=updateListing;$('location').onchange=updateListing;
+$('photoInput').onchange=e=>{const f=e.target.files[0];if(!f)return;photoURL=URL.createObjectURL(f);$('preview').src=photoURL;$('preview').style.display='block';toast('เพิ่มรูปวัสดุจริงแล้ว')};
+
+function fallbackSVG(emoji){
+ return 'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#e4f2ea"/><stop offset="1" stop-color="#b9d9c8"/></linearGradient></defs><rect width="800" height="600" fill="url(#g)"/><circle cx="650" cy="120" r="120" fill="#fff" opacity=".28"/><text x="400" y="340" text-anchor="middle" font-size="150">${emoji}</text></svg>`);
+}
+function cardHTML(r,i){
+ const m=matInfo(), img=photoURL || fallbackSVG(m[1]);
+ return `<article class="swipe-card" data-index="${i}">
+   <div class="photo"><img src="${img}" onerror="this.src='${fallbackSVG(m[1])}'"><div class="photo-top"><span class="badge-pill">${r[4]}% MATCH</span><span class="badge-pill distance">📍 ${r[3]}</span></div></div>
+   <div class="card-info"><div class="name-row"><div><div class="name">${r[1]} ${r[0]}</div><div class="sub">กำลังมองหา ${m[2]} • รับได้ ${r[2]}</div></div><div class="match">${r[4]}%</div></div>
+   <div class="reasons"><span class="reason">${r[6]}</span><span class="reason">${r[7]}</span><span class="reason">${r[8]}</span></div>
+   <div class="need"><b>นำไปใช้:</b> ${r[5]}</div></div>
+ </article>`;
+}
+function renderStack(){
+  cards=receivers[selected].slice(); current=0;
+  $('stack').innerHTML=cards.map(cardHTML).join('');
+  const els=[...$('stack').querySelectorAll('.swipe-card')];
+
+  // Only the first card is fully visible. Cards behind it are deliberately
+  // smaller and lower, so their text can never cover the active card.
+  els.forEach((el,i)=>{
+    const depth=i;
+    el.style.zIndex=String(100-depth);
+    el.classList.remove('stack-back','stack-far');
+    if(depth===1) el.classList.add('stack-back');
+    if(depth>=2) el.classList.add('stack-far');
+
+    let startX=0, dx=0, drag=false;
+    const down=e=>{
+      if(i!==0) return;
+      drag=true;
+      startX=(e.touches?e.touches[0].clientX:e.clientX);
+      el.style.transition='none';
+      el.setPointerCapture?.(e.pointerId);
+    };
+    const move=e=>{
+      if(!drag || i!==0)return;
+      const x=(e.touches?e.touches[0].clientX:e.clientX);
+      dx=x-startX;
+      el.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;
+    };
+    const up=()=>{
+      if(!drag || i!==0)return;
+      drag=false;
+      el.style.transition='.25s';
+      if(Math.abs(dx)>105) swipe(dx>0?'like':'pass',el);
+      else el.style.transform='';
+      dx=0;
+    };
+    el.addEventListener('pointerdown',down);
+    el.addEventListener('pointermove',move);
+    el.addEventListener('pointerup',up);
+    el.addEventListener('pointercancel',up);
+  });
+}
+
+function swipe(type,el){
+ const idx=Number(el.dataset.index),r=cards[idx];if(!r)return;
+ el.style.transform=`translateX(${type==='like'?650:-650}px) rotate(${type==='like'?25:-25}deg)`;el.style.opacity='0';
+ setTimeout(()=>{current++;if(type==='like'){liked.push(r);selectedผู้รับ=r;updateคู่ที่สนใจ();$('matchผลกระทบ').textContent=liked.length;toast(`♥ ${r[0]} added to คู่ที่สนใจ`)};if(current>=cards.length){toast('ไม่มีคู่เหลือแล้ว — ลองปรับระยะทางหรือวัสดุที่สนใจ');renderStack()}else renderStack()},230);
+}
+function updateคู่ที่สนใจ(){
+ $('matchList').innerHTML=liked.length?liked.map((r,i)=>`<div class="match-row"><div class="thumb">${r[1]}</div><div><b>${r[0]}</b><div class="small">${r[5]} • 📍 ${r[3]}</div><div class="score">${r[4]}% match</div></div><button data-match="${i}">View →</button></div>`).join(''):`<div class="statbox"><h3>ยังไม่มีคู่ที่สนใจ</h3><p class="small">ปัดขวา ♥ บนผู้รับที่คุณอยากติดต่อ</p><button class="btn primary" onclick="go('discover')">เริ่มค้นหาคู่ →</button></div>`;
+ $('matchList').querySelectorAll('[data-match]').forEach(b=>b.onclick=()=>{selectedผู้รับ=liked[Number(b.dataset.match)];renderExchange();go('postMatch')});
+}
+function renderExchange(){
+ if(!selectedผู้รับ)return;
+ const m=matInfo();$('exchangeGrid').innerHTML=`<div class="person"><div class="eyebrow">คุณ</div><h3>${m[1]} ${m[2]}</h3><div class="small">${$('qty').value} กก./สัปดาห์ • ${$('location').value}</div></div><div class="arrowbig">→</div><div class="person"><div class="eyebrow">ผู้รับ</div><h3>${selectedผู้รับ[1]} ${selectedผู้รับ[0]}</h3><div class="small">${selectedผู้รับ[2]} • 📍 ${selectedผู้รับ[3]}</div></div>`;
+}
+$('likeBtn').onclick=()=>{const el=$('stack').querySelector('.swipe-card');if(el)swipe('like',el)};
+$('passBtn').onclick=()=>{const el=$('stack').querySelector('.swipe-card');if(el)swipe('pass',el)};
+$('starBtn').onclick=()=>{const el=$('stack').querySelector('.swipe-card');if(el){swipe('like',el);toast('★ บันทึกคู่สำคัญแล้ว')}};
+$('discoverBtn').onclick=()=>{renderStack();go('discover')};
+$('postBtn').onclick=()=>go('post');
+$('publishBtn').onclick=()=>{updateListing();renderStack();toast('เผยแพร่แล้ว — กำลังค้นหาคู่ที่เหมาะสม');setTimeout(()=>go('discover'),500)};
+$('messageBtn').onclick=()=>toast('เปิดหน้าส่งข้อความแล้ว — ฟังก์ชันตัวอย่าง');
+document.querySelectorAll('.bottom button').forEach(b=>b.onclick=()=>go(b.dataset.go));
+$('prefBtn').onclick=$('openPref').onclick=$('filterBtn').onclick=()=>$('prefModal').classList.add('show');
+$('closePref').onclick=()=>$('prefModal').classList.remove('show');
+$('distRange').oninput=e=>$('distValue').textContent=e.target.value+' km';
+$('prefLoc').onchange=e=>$('prefระยะทาง').textContent=e.target.value;
+$('savePref').onclick=()=>{$('prefModal').classList.remove('show');toast('บันทึกความต้องการแล้ว');renderStack()};
+$('farToggle').onclick=e=>e.currentTarget.classList.toggle('on');
+
+renderวัสดุs();updateListing();renderStack();updateคู่ที่สนใจ();
+</script>
+</body>
+</html>
